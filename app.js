@@ -40,6 +40,17 @@ app.put("/api/v1/players/:uuid", upload.single("player.dat"), async (req, res, n
   }
 })
 
+// GET TIME
+app.get("/api/v1/players/:uuid/date",  async (req, res, next) => {
+  try {
+    mlog.info("get data date > " + req.params.uuid)
+    const file = fs.statSync(config.server.dataPath + '/' + req.params.uuid + ".dat", 'binary')
+    res.status(200).send(file.mtime.getTime().toString())
+  } catch(err) {
+    res.status(404).send("FAILED!")
+  }
+})
+
 // GET
 app.get("/api/v1/players/:uuid",  async (req, res, next) => {
   try {
@@ -54,6 +65,7 @@ app.get("/api/v1/players/:uuid",  async (req, res, next) => {
     res.status(404).send("FAILED!")
   }
 })
+
 
 // バックアップ
 app.delete("/api/v1/players/:uuid",  async (req, res, next) => {
