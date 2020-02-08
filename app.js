@@ -34,13 +34,9 @@ app.put("/api/v1/players/:uuid", upload.single("player.dat"), async (req, res, n
   mlog.info("put data > " + req.params.uuid)
   const {file} = req
   if (!file) {
-    res.json({
-      success: false
-    })
+    res.status(404).send("FAILED!")
   } else {
-    res.json({
-      success: true
-    })
+    res.status(200).send("SUCCESS!")
   }
 })
 
@@ -54,6 +50,14 @@ app.get("/api/v1/players/:uuid",  async (req, res, next) => {
     res.write(file, 'binary')
     res.end()
 
+  } catch(err) {
+    res.status(404).send("FAILED!")
+  }
+})
+
+// バックアップ
+app.delete("/api/v1/players/:uuid",  async (req, res, next) => {
+  try {
     fs.rename(config.server.dataPath + '/' + req.params.uuid + ".dat", config.server.dataPath + '/' + req.params.uuid + ".dat_", function (err) {
       if(err) {
         mlog.info("backup error > " + req.params.uuid)
@@ -61,10 +65,12 @@ app.get("/api/v1/players/:uuid",  async (req, res, next) => {
         mlog.info("backup success > " + req.params.uuid)
       }
     })
+    res.status(200).send("SUCCESS!")
   } catch(err) {
-    res.status(404)
+    res.status(404).send("FAILED!")
   }
 })
+
 
 const server = app.listen(config.server.port, function () {
   const host = server.address().address
