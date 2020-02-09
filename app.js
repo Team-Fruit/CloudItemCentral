@@ -30,7 +30,7 @@ app.head("/api/v1/players/:uuid",  async (req, res, next) => {
 })
 
 // 更新
-app.put("/api/v1/players/:uuid", upload.single("player.dat"), async (req, res, next) => {
+app.put("/api/v1/players/:uuid", upload.single("nbt"), async (req, res, next) => {
   const {file} = req
   if (!file) {
     mlog.info("put data (failed)> " + req.params.uuid)
