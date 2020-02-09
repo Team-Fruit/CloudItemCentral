@@ -31,11 +31,12 @@ app.head("/api/v1/players/:uuid",  async (req, res, next) => {
 
 // 更新
 app.put("/api/v1/players/:uuid", upload.single("player.dat"), async (req, res, next) => {
-  mlog.info("put data > " + req.params.uuid)
   const {file} = req
   if (!file) {
+    mlog.info("put data (failed)> " + req.params.uuid)
     res.status(404).send("FAILED!")
   } else {
+    mlog.info("put data (success)> " + req.params.uuid)
     res.status(200).send("SUCCESS!")
   }
 })
@@ -43,10 +44,11 @@ app.put("/api/v1/players/:uuid", upload.single("player.dat"), async (req, res, n
 // GET TIME
 app.get("/api/v1/players/:uuid/date",  async (req, res, next) => {
   try {
-    mlog.info("get data date > " + req.params.uuid)
+    mlog.info("check data (success)> " + req.params.uuid)
     const file = fs.statSync(config.server.dataPath + '/' + req.params.uuid + ".dat", 'binary')
     res.status(200).send(file.mtime.getTime().toString())
   } catch(err) {
+    mlog.info("check data (failed)> " + req.params.uuid)
     res.status(404).send("FAILED!")
   }
 })
@@ -54,14 +56,15 @@ app.get("/api/v1/players/:uuid/date",  async (req, res, next) => {
 // GET
 app.get("/api/v1/players/:uuid",  async (req, res, next) => {
   try {
-    mlog.info("get data > " + req.params.uuid)
 
     const file = fs.readFileSync(config.server.dataPath + '/' + req.params.uuid + ".dat", 'binary')
+    mlog.info("get data (success)> " + req.params.uuid)
     res.setHeader('Content-Length', file.length)
     res.write(file, 'binary')
     res.end()
 
   } catch(err) {
+    mlog.info("get data (failed)> " + req.params.uuid)
     res.status(404).send("FAILED!")
   }
 })
@@ -72,9 +75,9 @@ app.delete("/api/v1/players/:uuid",  async (req, res, next) => {
   try {
     fs.rename(config.server.dataPath + '/' + req.params.uuid + ".dat", config.server.dataPath + '/' + req.params.uuid + ".dat_", function (err) {
       if(err) {
-        mlog.info("backup error > " + req.params.uuid)
+        mlog.info("delete (failed)> " + req.params.uuid)
       } else {
-        mlog.info("backup success > " + req.params.uuid)
+        mlog.info("delete (success)> " + req.params.uuid)
       }
     })
     res.status(200).send("SUCCESS!")
