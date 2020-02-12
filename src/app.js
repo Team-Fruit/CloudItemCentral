@@ -1,10 +1,17 @@
 import mlog from "./logger/logger"
+// import DBManager from "./database/db"
 const express = require('express')
+const basicAuth = require('express-basic-auth')
 const multer = require('multer')
+const crypto = require("crypto")
 const fs = require('fs')
 const app = express()
 // コンフィグを読み込み
 const config = JSON.parse(fs.readFileSync('./server.config', 'utf8'))
+
+app.use(basicAuth({
+  users: { 'id': 'pass' }
+}))
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -45,7 +52,7 @@ app.put("/api/v1/players/:uuid", upload.single("nbt"), async (req, res, next) =>
 app.get("/api/v1/players/:uuid/date",  async (req, res, next) => {
   try {
     mlog.info("check data (success)> " + req.params.uuid)
-    const file = fs.statSync(config.server.dataPath + '/' + req.params.uuid + ".dat", 'binary')
+    const file = fs.statSync(config.server.dataPath + '/' + req.params.uuid + ".dat")
     res.status(200).send(file.mtime.getTime().toString())
   } catch(err) {
     mlog.info("check data (failed)> " + req.params.uuid)
@@ -56,13 +63,11 @@ app.get("/api/v1/players/:uuid/date",  async (req, res, next) => {
 // GET
 app.get("/api/v1/players/:uuid",  async (req, res, next) => {
   try {
-
     const file = fs.readFileSync(config.server.dataPath + '/' + req.params.uuid + ".dat", 'binary')
     mlog.info("get data (success)> " + req.params.uuid)
     res.setHeader('Content-Length', file.length)
     res.write(file, 'binary')
     res.end()
-
   } catch(err) {
     mlog.info("get data (failed)> " + req.params.uuid)
     res.status(404).send("FAILED!")
