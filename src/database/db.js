@@ -20,4 +20,15 @@ export class DBManager {
         }
         if (conn) conn.release()
     }
+
+    async addServers() {
+        let conn
+        try {
+            conn = await pool.getConnection()
+            const res = conn.query("INSERT INTO servers value (?, ?)", ["test1", "test1pass"])
+        } catch (err) {
+            throw err
+        }
+        if (conn) conn.release()
+    }
 }
